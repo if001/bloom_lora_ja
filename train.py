@@ -67,12 +67,6 @@ TARGET_MODULES = [
 DATA_PATH = 'japanese_alpaca_data.json'
 
 device_map = "auto"
-world_size = int(os.environ.get('WORLD_SIZE', 1))
-ddp = world_size != 1
-if ddp:
-    device_map = {'':int(os.environ.get('LOCAL_RANK') or 0)}
-    GRADIENT_ACCUMULATION_STEPS = GRADIENT_ACCUMULATION_STEPS // world_size
-
 model_name = args.model
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
