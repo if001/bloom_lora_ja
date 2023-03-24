@@ -12,6 +12,7 @@ import torch.nn as nn
 import bitsandbytes as bnb
 
 from datasets import load_dataset
+from transformers import Trainer, TrainingArguments, DataCollatorForLanguageModeling
 from transformers import BitsAndBytesConfig
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import (
@@ -68,6 +69,13 @@ quantization_config = BitsAndBytesConfig(
     load_in_8bit=True,
     llm_int8_enable_fp32_cpu_offload=True
 )
+device_map = {
+    "transformer.word_embeddings": 0,
+    "transformer.word_embeddings_layernorm": 0,
+    "lm_head": "cpu",
+    "transformer.h": 0,
+    "transformer.ln_f": 0,
+}
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
     quantization_config=quantization_config,
@@ -152,11 +160,11 @@ else:
     train_data = data["train"].shuffle().map(generate_and_tokenize_prompt)
     val_data = None
 
-trainer = transformers.Trainer(
+trainer = Trainer(
     model=model,
     train_dataset=train_data,
     eval_dataset=val_data,
-    args=transformers.TrainingArguments(
+    args=TrainingArguments(
         per_device_train_batch_size=MICRO_BATCH_SIZE,
         gradient_accumulation_steps=GRADIENT_ACCUMULATION_STEPS,
         warmup_steps=100,
@@ -173,7 +181,7 @@ trainer = transformers.Trainer(
         load_best_model_at_end=True,
         ddp_find_unused_parameters=False if ddp else None,
     ),
-    data_collator=transformers.DataCollatorForLanguageModeling(tokenizer, mlm=False),
+    data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
 )
 model.config.use_cache = False
 
