@@ -70,8 +70,8 @@ quantization_config = BitsAndBytesConfig(
     llm_int8_enable_fp32_cpu_offload=True
 )
 device_map = {
-    "transformer.word_embeddings": 0,
-    "transformer.word_embeddings_layernorm": 0,
+    "transformer.word_embeddings": 'cpu',
+    "transformer.word_embeddings_layernorm": 'cpu',
     "lm_head": "cpu",
     "transformer.h": 0,
     "transformer.ln_f": 0,
