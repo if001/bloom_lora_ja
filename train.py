@@ -35,11 +35,11 @@ OUTPUT_DIR=args.output
 SAVE_PRE_TRAINED_DIR=args.output
 
 # optimized for RTX 4090. for larger GPUs, increase some of these?
-MICRO_BATCH_SIZE = 4  # this could actually be 5 but i like powers of 2
-# MICRO_BATCH_SIZE = 2  # this could actually be 5 but i like powers of 2
+# MICRO_BATCH_SIZE = 4  # this could actually be 5 but i like powers of 2
+MICRO_BATCH_SIZE = 2  # this could actually be 5 but i like powers of 2
 
 # BATCH_SIZE = 128
-BATCH_SIZE = 4
+BATCH_SIZE = 2
 GRADIENT_ACCUMULATION_STEPS = BATCH_SIZE // MICRO_BATCH_SIZE
 # EPOCHS = 3  # we don't always need 3 tbh
 EPOCHS = args.epoch
