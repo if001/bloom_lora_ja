@@ -7,16 +7,12 @@ https://github.com/huggingface/peft/blob/13e53fc7ee5d89d59b16523051006dddf0fb7a4
 import os
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-import torch
+
 import torch.nn as nn
 import bitsandbytes as bnb
-from datasets import load_dataset
-import transformers
 
-assert (
-    "LlamaTokenizer" in transformers._import_structure["models.llama"]
-), "LLaMA is now in HuggingFace's main branch.\nPlease reinstall it: pip uninstall transformers && pip install git+https://github.com/huggingface/transformers.git"
-from transformers import LlamaForCausalLM, LlamaTokenizer
+from datasets import load_dataset
+from transformers import BitsAndBytesConfig
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import (
     prepare_model_for_int8_training,
@@ -68,9 +64,13 @@ DATA_PATH = 'japanese_alpaca_data.json'
 
 device_map = "auto"
 model_name = args.model
+quantization_config = BitsAndBytesConfig(
+    load_in_8bit=True,
+    llm_int8_enable_fp32_cpu_offload=True
+)
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
-    load_in_8bit=True,
+    quantization_config=quantization_config,
     device_map=device_map,
 )
 tokenizer = AutoTokenizer.from_pretrained(
