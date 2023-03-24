@@ -179,7 +179,7 @@ trainer = Trainer(
         output_dir=OUTPUT_DIR,
         save_total_limit=3,
         load_best_model_at_end=True,
-        ddp_find_unused_parameters=False if ddp else None,
+        ddp_find_unused_parameters=None,
     ),
     data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
 )
