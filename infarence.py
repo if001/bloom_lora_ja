@@ -20,8 +20,17 @@ try:
 except:
     pass
 
+
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('-b', '--base_model', type=str, required=True)
+parser.add_argument('-m', '--model', type=str, required=True)
+args = parser.parse_args()
+
+
 # base_model_name = "bigscience/bloom-560m"
-base_model_name = "bigscience/bloom-1b1"
+# base_model_name = "bigscience/bloom-1b1"
+base_model_name = args.base_model
 
 tokenizer = AutoTokenizer.from_pretrained(
     base_model_name, add_eos_token=True
@@ -32,7 +41,7 @@ model = AutoModelForCausalLM.from_pretrained(
     torch_dtype=torch.float16,
     device_map="auto",
 )
-model_name = sys.argv[-1]
+model_name = args.model
 model = PeftModel.from_pretrained(
     model,
     model_name,

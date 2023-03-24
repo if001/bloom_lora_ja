@@ -24,12 +24,18 @@ from peft import (
     get_peft_model,
     get_peft_model_state_dict,
 )
-import sys
+
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('-m', '--model', type=str, required=True)
+parser.add_argument('-o', '--output', type=str, required=True)
+parser.add_argument('-e', '--epoch', type=int, required=True)
+args = parser.parse_args()
 
 # OUTPUT_DIR="/content/drive/MyDrive/models/bloom_lora_ja"
 # SAVE_PRE_TRAINED_DIR = "/content/drive/MyDrive/models/bloom_lora_ja"
-OUTPUT_DIR=sys.argv[-1]
-SAVE_PRE_TRAINED_DIR=sys.argv[-1]
+OUTPUT_DIR=args.output
+SAVE_PRE_TRAINED_DIR=args.output
 
 # optimized for RTX 4090. for larger GPUs, increase some of these?
 MICRO_BATCH_SIZE = 4  # this could actually be 5 but i like powers of 2
@@ -39,7 +45,7 @@ MICRO_BATCH_SIZE = 4  # this could actually be 5 but i like powers of 2
 BATCH_SIZE = 8
 GRADIENT_ACCUMULATION_STEPS = BATCH_SIZE // MICRO_BATCH_SIZE
 # EPOCHS = 3  # we don't always need 3 tbh
-EPOCHS = 1  # we don't always need 3 tbh
+EPOCHS = args.epoch
 
 LEARNING_RATE = 3e-4  # the Karpathy constant
 CUTOFF_LEN = 256  # 256 accounts for about 96% of the data
@@ -67,27 +73,12 @@ if ddp:
     device_map = {'':int(os.environ.get('LOCAL_RANK') or 0)}
     GRADIENT_ACCUMULATION_STEPS = GRADIENT_ACCUMULATION_STEPS // world_size
 
-# model_name = "decapoda-research/llama-7b-hf"
-# model = LlamaForCausalLM.from_pretrained(
-#     model_name,
-#     load_in_8bit=True,
-#     device_map=device_map,
-# )
-# tokenizer = LlamaTokenizer.from_pretrained(
-#     model_name,add_eos_token=True    
-# )
-
-model_name = "bigscience/bloom-1b1"
-# model_name = "bigscience/bloom-560m"
-# model_name = "facebook/opt-6.7b"
-# model_name = "facebook/opt-350m"
-# model_name = "facebook/opt-1.3b"
+model_name = args.model
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
     load_in_8bit=True,
     device_map=device_map,
 )
-
 tokenizer = AutoTokenizer.from_pretrained(
     model_name,add_eos_token=True
 )
